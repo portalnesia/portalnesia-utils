@@ -28,6 +28,8 @@ jobs:
           npm ci
       - name: Build
         run: npm run build
+      - name: Test
+        run: npm test
       - name: Publish package on NPM 📦
         run: npm publish --access=public
         env:
