@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "module": "commonjs",
+        "declaration": true,
+        "noEmitOnError": true,
+        "target": "es2015",
+        "rootDir": "./src",
+        "declarationDir": "./dist",
+        "outDir": "./dist",
+    },
+    "include": ["./src"],
+    "exclude": ["node_modules","./dist"]
+}
