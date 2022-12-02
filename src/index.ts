@@ -89,11 +89,22 @@ export const specialHTML=(text: string): string=>{
     return text.replace(/(\&amp\;|\&lt\;|\&gt\;|\&quot\;|\&\#039\;|\&nbsp\;)/g, function(m){return map[m]});
 }
 
+/**
+ * Cleanify the URL string
+ * @param {string} url Url to formatted
+ * @returns {string} Formatted URL
+ */
 export const parseURL=(url: string): string=>{
     if(typeof url!=='string') return '';
-    const parser=new URL((url.match(/http(s)?/)?url:`http://${url}`));
-    const parserr=`${parser.hostname}${parser.pathname}${parser.search}`;
-    return parserr.replace("www.", "");
+    if(!isURL(url)) return url;
+    try {
+        const parser=new URL((url.match(/http(s)?/)?url:`http://${url}`));
+        const parserr=`${parser.hostname}${parser.pathname}${parser.search}`;
+        return parserr.replace("www.", "");
+    } catch {
+        return url;
+    }
+    
 }
 
 /**
@@ -101,7 +112,7 @@ export const parseURL=(url: string): string=>{
  * @param {string} text Input string
  * @returns {string} string
  */
-export const ucwords=function(text: string){
+export const ucwords=function(text: string): string{
     if(typeof text!=='string') return '';
     const str=text.toLowerCase().replace(/\b[a-z]/g, function(letter) {
         return letter.toUpperCase();
@@ -114,7 +125,7 @@ export const ucwords=function(text: string){
  * @param {string} text
  * @returns {string} string
  */
-export const jsStyles=function(text: string){
+export const jsStyles=function(text: string): string{
     if(typeof text!=='string') return '';
     let str=text.toLowerCase();
     const from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;-";
@@ -139,7 +150,7 @@ export const jsStyles=function(text: string){
  * @param {number} number max word
  * @returns {string} string
  */
-export const firstLetter=function(text: string,number?: number){
+export const firstLetter=function(text: string,number?: number): string{
     if(typeof text!=='string') return '';
     let str=text.toLowerCase().replace(/\b([a-z])(\S*)/g, function(a,b) {
         return b.toUpperCase();
@@ -154,9 +165,13 @@ export const firstLetter=function(text: string,number?: number){
  * @returns {string} string
  */
 export const urlToDomain=function(url: string): string{
-    let parser=new URL((url.match(/http(s)?/)?url:`http://${url}`));
-    const parserr=parser.hostname;
-    return parserr.replace("www.", "");
+    try {
+        let parser=new URL((url.match(/http(s)?/)?url:`http://${url}`));
+        const parserr=parser.hostname;
+        return parserr.replace("www.", "");
+    } catch {
+        return url;
+    }
 }
 
 
@@ -244,7 +259,7 @@ export const toBlob=(b64Data: string, contentType: string, sliceSize=512): Blob=
  * @param {number} precision 
  * @returns {string} string
  */
-export const number_size=(bytes: number|null|undefined,precision=2): string=>{
+export const number_size=(bytes: number|null|undefined,precision: number=2): string=>{
     if(typeof bytes !== 'number' || bytes===0 || bytes===null) return '-';
     const units = ['B', 'KB', 'MB', 'GB', 'TB'];
     bytes=Math.max(bytes,0);
@@ -265,7 +280,7 @@ const SMALL_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
  * @param {number} number maximum string being generated
  * @returns {string} string
  */
-export const generateRandom=(number=10,lowercase_only=false): string =>{
+export const generateRandom=(number: number=10,lowercase_only=false): string =>{
     let result='';
     const charLength = CHARS.length;
     for (let i = 0; i < number; i++) {
@@ -275,8 +290,22 @@ export const generateRandom=(number=10,lowercase_only=false): string =>{
     return result;
 }
 
-export const numberFormat = (angka: string,separate="."): string=>{
-    return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separate);
+/**
+ * Format the number to thousands format
+ * 
+ * @param {number} number The number you want to format
+ * @param {string} separate Thousands separator. Default: . (point)
+ * @param {string} comma Decimal number separatoe. Default , (comma)
+ * @returns {string} Formatted number
+ */
+export const numberFormat = (number: number,separate: string=".",comma: string=","): string=>{
+    try {
+        const num = number.toString().split(comma);
+        num[0] = num[0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, separate);
+        return num.join(comma);
+    } catch {
+        return number.toString();
+    }
 };
 
 /**
@@ -321,15 +350,12 @@ export const acronym=(text: string,len: number = 2)=>{
     return a;
 }
   
-export const separateNumber=(angka: number)=>{
-    try {
-        if(angka==0) return '0';
-        const num = angka.toString().split(".")
-        num[0] = num[0].replace(/\B(?=(\d{3})+(?!\d))/g,",")
-        return num.join(".")
-    } catch(err) {
-        return '0';
-    }
+/**
+ * 
+ * @deprecated Use {@link numberFormat | numberFormat} instead
+ */
+export const separateNumber=(number: number)=>{
+    return numberFormat(number)
 }
   
 export const addslashes=(str:string)=>{
@@ -413,8 +439,13 @@ export function number_format_short<D={number: number,format: string}>(n: number
     }
 }
 
-export function validateEmail(email: string) {
-    const regexp=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+/**
+ * Email validation
+ * @param {string} email String to validate
+ * @returns {boolean} true if valid email
+ */
+export function validateEmail(email: string): boolean {
+    const regexp=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.[a-z]{2,3})+$/;
     if(regexp.test(email)) return true;
     return false;
 }
