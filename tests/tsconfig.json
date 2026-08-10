@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": null,
+    "outDir": null,
+    "declaration": false,
+    "declarationDir": null,
+    "types": [
+      "@types/bun"
+    ]
+  },
+  "include": [
+    "."
+  ]
+}
